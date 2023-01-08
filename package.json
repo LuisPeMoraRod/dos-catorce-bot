@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/LuisPeMoraRod/dos-catorce-bot/issues"
   },
-  "homepage": "https://github.com/LuisPeMoraRod/dos-catorce-bot#readme"
+  "homepage": "https://github.com/LuisPeMoraRod/dos-catorce-bot#readme",
+  "dependencies": {
+    "axios": "^1.2.2"
+  }
 }
