@@ -1,6 +1,9 @@
 const axios = require("axios").default;
+// const handler = require("../../src/handler");
 
-module.exports = async (e) => {
+exports.updates = async (e) => {
+  // const res = await handler(e);
+  // return res;
   console.log("Received an update from Telegram!", e.body);
 
   await axios
