@@ -9,7 +9,11 @@ exports.handler = async (event) => {
       {
         chat_id: JSON.parse(event.body).message.chat.id,
         text: "I got your message!",
-        reply_markup: [["First button", "Second button"]],
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Button", callback_data: "callback string" }],
+          ],
+        },
       }
     )
     .catch(function (error) {
