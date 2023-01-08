@@ -8,6 +8,7 @@ exports.handler = async (event) => {
     {
       chat_id: JSON.parse(event.body).message.chat.id,
       text: "I got your message!",
+      reply_markup: [["First button", "Second button"]],
     }
   );
 
