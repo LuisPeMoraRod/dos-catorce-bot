@@ -7,13 +7,13 @@ module.exports = async (chatID, text, keyboard, inlineKeyboard = null) => {
     text: text,
     reply_markup: {
       one_time_keyboard: false,
+      resize_keyboard: true,
       keyboard: keyboard,
     },
   };
 
   if (!!inlineKeyboard)
-    body.reply_markup = {
-      ...body.reply_markup,
+    body["reply_markup"] = {
       inline_keyboard: inlineKeyboard,
     }; //set inline buttons if required
 

@@ -1,52 +1,32 @@
 const sendRes = require("./send-response");
-const axios = require("axios").default;
-const BOT_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+const { startCmd, toDosMenuCmd, unrecognizedCmd } = require("./commands");
 
 module.exports = async (e) => {
   const req = JSON.parse(e.body);
   console.log("Received an update from Telegram: \n", req);
-  const chatID = req.message.chat.id;
-  const mainMenu = [
-    [{ text: "To-Dos List ❤️‍🔥" }],
-    [
-      {
-        text: "Nuestros horarios de U 📚",
-      },
-    ],
-  ];
 
-  let buttons;
+  if (isValidUsername(req)) {
+    if (isCommand(req)) {
+      const chatID = req.message.chat.id;
+      const cmd = req.message.text;
 
-  if (isCommand(req)) {
-    // await axios
-    //   .post(BOT_URL, {
-    //     chat_id: req.message.chat.id,
-    //     text: "I got your message!",
-    //     reply_markup: {
-    //       inline_keyboard: [
-    //         [{ text: "Button", callback_data: "callback string" }],
-    //       ],
-    //     },
-    //   })
-    //   .catch((error) => {
-    //     console.log(error.toJSON());
-    //     return { statusCode: 500 };
-    //   });
-    const cmd = req.message.text;
-    switch (cmd) {
-      case "/inicio":
-        return await sendRes(chatID, "Escogé una opción:", mainMenu);
-
-      default:
-        return await sendRes(
-          chatID,
-          "No pude reconcer el comando 😵‍💫",
-          mainMenu
-        );
+      switch (cmd) {
+        case "/inicio":
+          return await startCmd(chatID);
+        case "To-Dos List ❤️‍🔥":
+          return await toDosMenuCmd(chatID);
+        default:
+          return await unrecognizedCmd(chatID);
+      }
+    } else if (isCallback(req)) {
+      const chatID = req.callback_query.from.id;
+      return await sendRes(chatID, "I got your button callback!");
     }
-  } else if (isCallback(req)) {
-    return await sendRes(chatID, "I got your button callback!");
-  }
+  } else
+    return await sendRes(
+      req.message.chat.id,
+      "Sorry! You're not authorized to use this bot."
+    );
 };
 
 const isCallback = (req) => {
@@ -55,4 +35,9 @@ const isCallback = (req) => {
 
 const isCommand = (req) => {
   return !!req.message;
+};
+
+const isValidUsername = (req) => {
+  const sender = req.message.from.username;
+  return sender === "keyrencalderon" || sender === "LuisPeMoraRod";
 };
