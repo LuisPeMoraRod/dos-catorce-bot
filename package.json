@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/LuisPeMoraRod/dos-catorce-bot#readme",
   "dependencies": {
-    "axios": "^1.2.2"
+    "axios": "^1.2.2",
+    "mongoose": "^6.8.3"
   }
 }
