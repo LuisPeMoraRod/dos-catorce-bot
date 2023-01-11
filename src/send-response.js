@@ -5,6 +5,7 @@ module.exports = async (chatID, text, keyboard, inlineKeyboard = null) => {
   let body = {
     chat_id: chatID,
     text: text,
+    parse_mode: "markdown",
     reply_markup: {
       one_time_keyboard: false,
       resize_keyboard: true,
