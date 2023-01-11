@@ -4,7 +4,8 @@ const { Schema, model } = mongoose;
 const toDoSchema = new Schema({
   title: { type: String, unique: true },
   description: String,
-  completed: { type: Boolean, default: false },
+  isCompleted: { type: Boolean, default: false },
+  isActive: { type: Boolean, default: true },
   createdAt: {
     type: Date,
     default: () => Date.now(),

@@ -1,22 +1,14 @@
 const { ToDo } = require("./model/ToDo");
 const sendRes = require("./send-response");
+const { MAIN_MENU, TO_DOS_MENU } = require("./constants");
 
 // handle '/inicio' command
 const startCmd = async (chatID) => {
-  const mainMenu = [
-    [{ text: "To-Dos List ❤️‍🔥" }],
-    [
-      {
-        text: "Nuestros horarios de U 📚",
-      },
-    ],
-  ];
-
   try {
     return await sendRes(
       chatID,
       "Escogé una opción del menú principal:",
-      mainMenu
+      MAIN_MENU
     );
   } catch (error) {
     console.log(error);
@@ -26,12 +18,8 @@ const startCmd = async (chatID) => {
 
 // handle inline keyboard menu for To Dos List
 const toDosMenuCmd = async (chatID) => {
-  const buttons = [
-    [{ text: "Ver lista", callback_data: "fetch_to_dos" }],
-    [{ text: "Crear nuevo goal", callback_data: "create_to_do" }],
-  ];
   try {
-    return await sendRes(chatID, "Escogé una opción:", null, buttons);
+    return await sendRes(chatID, "Escogé una opción:", null, TO_DOS_MENU);
   } catch (error) {
     console.log(error);
     return { statusCode: 500 };
@@ -75,17 +63,8 @@ const getToDo = (text) => {
 
 // default answer when commmand isn't recognized
 const unrecognizedCmd = async (chatID) => {
-  const mainMenu = [
-    [{ text: "To-Dos List ❤️‍🔥" }],
-    [
-      {
-        text: "Nuestros horarios de U 📚",
-      },
-    ],
-  ];
-
   try {
-    return await sendRes(chatID, "No pude reconcer el comando 😵‍💫", mainMenu);
+    return await sendRes(chatID, "No pude reconcer el comando 😵‍💫", MAIN_MENU);
   } catch (error) {
     console.log(error);
     return { statusCode: 500 };

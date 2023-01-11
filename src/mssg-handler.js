@@ -8,7 +8,15 @@ const {
   createToDo,
   unrecognizedCmd,
 } = require("./commands");
-const { fetchToDo, fetchToDos, setIsCreatingToDo } = require("./btn-callbacks");
+const {
+  fetchToDo,
+  fetchToDos,
+  closeToDo,
+  deleteToDo,
+  setIsCreatingToDo,
+  fetchAllCompleted,
+  fetchCompleted,
+} = require("./btn-callbacks");
 
 module.exports = async (e) => {
   mongoose.set("strictQuery", false);
@@ -47,6 +55,14 @@ module.exports = async (e) => {
           return await fetchToDo(chatID, id);
         case "create_to_do":
           return await setIsCreatingToDo(chatID, user);
+        case "close_to_do":
+          return await closeToDo(chatID, id);
+        case "delete_to_do":
+          return await deleteToDo(chatID, id);
+        case "fetch_all_completed":
+          return await fetchAllCompleted(chatID);
+        case "fetch_completed":
+          return fetchCompleted(chatID, id);
         default:
           return await unrecognizedCmd(chatID);
       }
@@ -62,6 +78,12 @@ const isCallback = (req) => {
   return !!req.callback_query;
 };
 
+/**
+ * separate callback command by '@' character
+ * e.g.
+ * callbackData: 'fetch_to_do@my to-do'
+ * returns: {cmd: "fetch_to_do", id: "my to-do"}
+ */
 const getCbCommands = (callbackData) => {
   const data = callbackData.split("@");
   let cmd, id;
