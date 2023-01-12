@@ -4,8 +4,10 @@ const { User } = require("./model/User");
 const sendRes = require("./send-response");
 const {
   startCmd,
+  cancelCmd,
   toDosMenuCmd,
   createToDo,
+  editToDo,
   unrecognizedCmd,
 } = require("./commands");
 const {
@@ -13,6 +15,7 @@ const {
   fetchToDos,
   closeToDo,
   deleteToDo,
+  editToDo: setEditToDo,
   setIsCreatingToDo,
   fetchAllCompleted,
   fetchCompleted,
@@ -33,15 +36,19 @@ module.exports = async (e) => {
       const chatID = req.message.chat.id;
       const cmd = req.message.text;
 
-      if (user.isCreatingToDo) return await createToDo(chatID, user, req);
+      if (cmd === "/cancelar") return await cancelCmd(chatID, user);
+      else {
+        if (user.isCreatingToDo) return await createToDo(chatID, user, req);
+        if (!!user.editingToDo) return await editToDo(chatID, user, req);
 
-      switch (cmd) {
-        case "/inicio":
-          return await startCmd(chatID);
-        case "To-Dos List ❤️‍🔥":
-          return await toDosMenuCmd(chatID);
-        default:
-          return await unrecognizedCmd(chatID);
+        switch (cmd) {
+          case "/inicio":
+            return await startCmd(chatID);
+          case "To-Dos List ❤️‍🔥":
+            return await toDosMenuCmd(chatID);
+          default:
+            return await unrecognizedCmd(chatID);
+        }
       }
     } else if (isCallback(req)) {
       // if users press a button
@@ -59,6 +66,8 @@ module.exports = async (e) => {
           return await closeToDo(chatID, id);
         case "delete_to_do":
           return await deleteToDo(chatID, id);
+        case "edit_to_do":
+          return await setEditToDo(chatID, user, id);
         case "fetch_all_completed":
           return await fetchAllCompleted(chatID);
         case "fetch_completed":

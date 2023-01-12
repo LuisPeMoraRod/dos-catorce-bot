@@ -7,9 +7,22 @@ const startCmd = async (chatID) => {
   try {
     return await sendRes(
       chatID,
-      "Escogé una opción del menú principal:",
+      "Escogé una opción de los botones del keyboard:",
       MAIN_MENU
     );
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
+// handle '/cancel' command
+const cancelCmd = async (chatID, user) => {
+  try {
+    user.isCreatingToDo = false;
+    user.editingToDo = null;
+    await user.save();
+    return await sendRes(chatID, "La operación fue cancelada.", MAIN_MENU);
   } catch (error) {
     console.log(error);
     return { statusCode: 500 };
@@ -47,6 +60,27 @@ const createToDo = async (chatID, user, req) => {
   }
 };
 
+// edit existing to-do
+const editToDo = async (chatID, user, req) => {
+  try {
+    const editingTitle = user.editingToDo;
+    user.editingToDo = null;
+    await user.save();
+    const toDo = await ToDo.findOne({ title: editingTitle });
+    const { title, description } = getToDo(req.message.text);
+    toDo.title = title;
+    toDo.description = description;
+    await toDo.save();
+    return await sendRes(chatID, "El _to-do_ fue actualizado exitosamente");
+  } catch (error) {
+    console.log(error);
+    return await sendRes(
+      chatID,
+      "Error: ya hay un elemento registrado con ese título"
+    );
+  }
+};
+
 // split title and description of ToDo text message
 const getToDo = (text) => {
   const splitted = text.split("\n");
@@ -71,4 +105,11 @@ const unrecognizedCmd = async (chatID) => {
   }
 };
 
-module.exports = { startCmd, toDosMenuCmd, createToDo, unrecognizedCmd };
+module.exports = {
+  startCmd,
+  cancelCmd,
+  toDosMenuCmd,
+  createToDo,
+  editToDo,
+  unrecognizedCmd,
+};

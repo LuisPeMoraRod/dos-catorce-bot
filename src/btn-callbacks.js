@@ -1,5 +1,5 @@
 const { ToDo } = require("./model/ToDo");
-const { CREATE_TO_DO_MSSG } = require("./constants");
+const { CREATE_TO_DO_MSSG, EDIT_TO_DO_MSSG } = require("./constants");
 
 const sendRes = require("./send-response");
 
@@ -96,7 +96,13 @@ const fetchCompleted = async (chatID, title) => {
       ? `*${toDo.title}*\n${toDo.description}`
       : toDo.title;
 
-    return await sendRes(chatID, message);
+    const buttons = [
+      [
+        { text: "Editar ✏️", callback_data: `edit_to_do@${toDo.title}` },
+        { text: "Eliminar ❌", callback_data: `delete_to_do@${toDo.title}` },
+      ],
+    ];
+    return await sendRes(chatID, message, null, buttons);
   } catch (error) {
     console.log(error);
     return { statusCode: 500 };
@@ -128,6 +134,18 @@ const deleteToDo = async (chatID, title) => {
     return { statusCode: 500 };
   }
 };
+
+const editToDo = async (chatID, user, title) => {
+  try {
+    user.editingToDo = title;
+    await user.save();
+    return await sendRes(chatID, EDIT_TO_DO_MSSG);
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
 // set isCreatingToDo user's flag in DB and respond with instructions message
 const setIsCreatingToDo = async (chatID, user) => {
   try {
@@ -145,6 +163,7 @@ module.exports = {
   fetchToDo,
   closeToDo,
   deleteToDo,
+  editToDo,
   setIsCreatingToDo,
   fetchAllCompleted,
   fetchCompleted,
