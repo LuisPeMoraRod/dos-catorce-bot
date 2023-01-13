@@ -154,8 +154,9 @@ const deleteToDo = async (chatID, title) => {
   }
 };
 
-const editToDo = async (chatID, user, title) => {
+const editToDo = async (chatID, username, title) => {
   try {
+    const user = await User.findOne({ username: username });
     user.editingToDo = title;
     await user.save();
     return await sendRes(chatID, EDIT_TO_DO_MSSG);
@@ -170,8 +171,9 @@ const editToDo = async (chatID, user, title) => {
  * @param {Number} chatID
  * @param {User} user
  */
-const setIsCreatingToDo = async (chatID, user) => {
+const setIsCreatingToDo = async (chatID, username) => {
   try {
+    const user = await User.findOne({ username: username });
     user.isCreatingToDo = true;
     await user.save();
     return await sendRes(chatID, CREATE_TO_DO_MSSG);
@@ -200,8 +202,9 @@ const fetchSchedule = async (chatID, username) => {
  * @param {User} user: User that is going to perform the edition
  * @param {String} username: username of the owner of the schedule to be edited
  */
-const editSchedule = async (chatID, user, username) => {
+const editSchedule = async (chatID, senderUsername, username) => {
   try {
+    const user = await User.findOne({ username: senderUsername });
     user.editingSchedule = username;
     await user.save();
     return await sendRes(chatID, EDIT_SCHEDULE_MSSG);

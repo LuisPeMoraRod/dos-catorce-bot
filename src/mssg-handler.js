@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { ToDo } = require("./model/ToDo");
 const { User } = require("./model/User");
 const sendRes = require("./send-response");
 const {
@@ -60,8 +59,19 @@ module.exports = async (e) => {
       }
     } else if (isCallback(req)) {
       // if users press a button
+      const username = user.username;
+      const messageID = req.callback_query.message.message_id;
+      const messageData = req.callback_query.data;
+      // patch: don't respond to repeated callbacks
+      if (
+        messageID === user.lastMessageID &&
+        messageData === user.lastMessageData
+      )
+        return { statusCode: 200 };
+      updateLastMssg(user, messageID, messageData);
+
       const chatID = req.callback_query.from.id;
-      const { cmd, id } = getCbCommands(req.callback_query.data);
+      const { cmd, id } = getCbCommands(messageData);
 
       switch (cmd) {
         case "fetch_to_dos":
@@ -69,13 +79,13 @@ module.exports = async (e) => {
         case "fetch_to_do":
           return await fetchToDo(chatID, id);
         case "create_to_do":
-          return await setIsCreatingToDo(chatID, user);
+          return await setIsCreatingToDo(chatID, username);
         case "close_to_do":
           return await closeToDo(chatID, id);
         case "delete_to_do":
           return await deleteToDo(chatID, id);
         case "edit_to_do":
-          return await setEditToDo(chatID, user, id);
+          return await setEditToDo(chatID, username, id);
         case "fetch_all_completed":
           return await fetchAllCompleted(chatID);
         case "fetch_completed":
@@ -83,7 +93,7 @@ module.exports = async (e) => {
         case "schedule":
           return fetchSchedule(chatID, id);
         case "edit_schedule":
-          return setEditSchedule(chatID, user, id);
+          return setEditSchedule(chatID, username, id);
         default:
           return await unrecognizedCmd(chatID);
       }
@@ -123,6 +133,15 @@ const isCommand = (req) => {
   return !!req.message;
 };
 
+const updateLastMssg = async (user, newMssgID, newMssgData) => {
+  user.lastMessageID = newMssgID;
+  user.lastMessageData = newMssgData;
+  try {
+    await user.save();
+  } catch (error) {
+    console.log(error);
+  }
+};
 const authenticateUser = async (req) => {
   let sender;
   try {

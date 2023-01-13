@@ -7,6 +7,8 @@ const userSchema = new Schema({
   editingToDo: { type: String, default: null },
   collegeSchedule: { type: String, default: "🐮ciones" },
   editingSchedule: { type: String, default: null },
+  lastMessageID: { type: Number },
+  lastMessageData: { type: String },
 });
 
 const User = model("User", userSchema);
