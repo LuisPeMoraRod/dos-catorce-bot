@@ -1,9 +1,17 @@
 const { ToDo } = require("./model/ToDo");
-const { CREATE_TO_DO_MSSG, EDIT_TO_DO_MSSG } = require("./constants");
+const { User } = require("./model/User");
+const {
+  CREATE_TO_DO_MSSG,
+  EDIT_TO_DO_MSSG,
+  EDIT_SCHEDULE_MSSG,
+} = require("./constants");
 
 const sendRes = require("./send-response");
 
-// retrieve to-dos list as buttons
+/**
+ * retrieve to-dos list as buttons
+ * @param {Number} chatID
+ */
 const fetchToDos = async (chatID) => {
   try {
     const toDos = await ToDo.find(
@@ -27,7 +35,10 @@ const fetchToDos = async (chatID) => {
   }
 };
 
-// retrieve completed goals list as buttons
+/**
+ * retrieve completed goals list as buttons
+ * @param {Number} chatID
+ */
 const fetchAllCompleted = async (chatID) => {
   try {
     const toDos = await ToDo.find(
@@ -53,7 +64,11 @@ const fetchAllCompleted = async (chatID) => {
   }
 };
 
-// send response with title and description of a specific to-do. Also, send options buttons
+/**
+ * send response with title and description of a specific to-do. Also, send options buttons
+ * @param {Number} chatID
+ * @param {String} title
+ */
 const fetchToDo = async (chatID, title) => {
   try {
     const toDo = await ToDo.findOne(
@@ -84,7 +99,11 @@ const fetchToDo = async (chatID, title) => {
   }
 };
 
-// send response with title and description of a specific completed goal. Also, send options buttons
+/**
+ * send response with title and description of a specific completed goal. Also, send options buttons
+ * @param {Number} chatID
+ * @param {String} title
+ */
 const fetchCompleted = async (chatID, title) => {
   try {
     const toDo = await ToDo.findOne(
@@ -146,12 +165,46 @@ const editToDo = async (chatID, user, title) => {
   }
 };
 
-// set isCreatingToDo user's flag in DB and respond with instructions message
+/**
+ * set isCreatingToDo user's flag in DB and respond with instructions message
+ * @param {Number} chatID
+ * @param {User} user
+ */
 const setIsCreatingToDo = async (chatID, user) => {
   try {
     user.isCreatingToDo = true;
     await user.save();
     return await sendRes(chatID, CREATE_TO_DO_MSSG);
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
+const fetchSchedule = async (chatID, username) => {
+  try {
+    const user = await User.findOne({ username: username });
+    const message = `*Horario de ${user.username}:*\n\n${user.collegeSchedule}`;
+    const buttons = [
+      [{ text: "Editar ✏️", callback_data: `edit_schedule@${user.username}` }],
+    ];
+    return await sendRes(chatID, message, null, buttons);
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
+/**
+ * @param {Number} chatID
+ * @param {User} user: User that is going to perform the edition
+ * @param {String} username: username of the owner of the schedule to be edited
+ */
+const editSchedule = async (chatID, user, username) => {
+  try {
+    user.editingSchedule = username;
+    await user.save();
+    return await sendRes(chatID, EDIT_SCHEDULE_MSSG);
   } catch (error) {
     console.log(error);
     return { statusCode: 500 };
@@ -167,4 +220,6 @@ module.exports = {
   setIsCreatingToDo,
   fetchAllCompleted,
   fetchCompleted,
+  fetchSchedule,
+  editSchedule,
 };

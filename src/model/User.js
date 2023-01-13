@@ -5,6 +5,8 @@ const userSchema = new Schema({
   username: { type: String, unique: true },
   isCreatingToDo: { type: Boolean, default: false },
   editingToDo: { type: String, default: null },
+  collegeSchedule: { type: String, default: "🐮ciones" },
+  editingSchedule: { type: String, default: null },
 });
 
 const User = model("User", userSchema);

@@ -8,6 +8,8 @@ const {
   toDosMenuCmd,
   createToDo,
   editToDo,
+  schedulesMenuCmd,
+  editSchedule,
   unrecognizedCmd,
 } = require("./commands");
 const {
@@ -19,6 +21,8 @@ const {
   setIsCreatingToDo,
   fetchAllCompleted,
   fetchCompleted,
+  fetchSchedule,
+  editSchedule: setEditSchedule,
 } = require("./btn-callbacks");
 
 module.exports = async (e) => {
@@ -40,12 +44,16 @@ module.exports = async (e) => {
       else {
         if (user.isCreatingToDo) return await createToDo(chatID, user, req);
         if (!!user.editingToDo) return await editToDo(chatID, user, req);
+        if (!!user.editingSchedule)
+          return await editSchedule(chatID, user, req);
 
         switch (cmd) {
           case "/inicio":
             return await startCmd(chatID);
           case "To-Dos List ❤️‍🔥":
             return await toDosMenuCmd(chatID);
+          case "Nuestros horarios de U 📚":
+            return await schedulesMenuCmd(chatID);
           default:
             return await unrecognizedCmd(chatID);
         }
@@ -72,6 +80,10 @@ module.exports = async (e) => {
           return await fetchAllCompleted(chatID);
         case "fetch_completed":
           return fetchCompleted(chatID, id);
+        case "schedule":
+          return fetchSchedule(chatID, id);
+        case "edit_schedule":
+          return setEditSchedule(chatID, user, id);
         default:
           return await unrecognizedCmd(chatID);
       }
@@ -89,9 +101,10 @@ const isCallback = (req) => {
 
 /**
  * separate callback command by '@' character
+ * @param {String} callbackData
  * e.g.
  * callbackData: 'fetch_to_do@my to-do'
- * returns: {cmd: "fetch_to_do", id: "my to-do"}
+ * @returns {Object} {cmd: "fetch_to_do", id: "my to-do"}
  */
 const getCbCommands = (callbackData) => {
   const data = callbackData.split("@");

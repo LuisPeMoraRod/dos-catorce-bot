@@ -30,7 +30,7 @@ netlify link
 netlify dev
 ```
 
-The local server will spin up and the function will be located at http://localhost:8888/.netlify/functions/update
+The local server will spin up and the function will be located at http://localhost:8888/.netlify/functions/updates-handler
 
 You can use a REST client to test this connection by sending a dummy POST request with a body like the following (the chat ID must be valid)
 

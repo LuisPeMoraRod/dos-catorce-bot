@@ -1,6 +1,7 @@
 const { ToDo } = require("./model/ToDo");
+const { User } = require("./model/User");
 const sendRes = require("./send-response");
-const { MAIN_MENU, TO_DOS_MENU } = require("./constants");
+const { MAIN_MENU, TO_DOS_MENU, SCHEDULES_MENU } = require("./constants");
 
 // handle '/inicio' command
 const startCmd = async (chatID) => {
@@ -95,6 +96,39 @@ const getToDo = (text) => {
   return { title, description };
 };
 
+// handle inline keyboard menu for To Dos List
+const schedulesMenuCmd = async (chatID) => {
+  try {
+    return await sendRes(chatID, "Escogé una opción:", null, SCHEDULES_MENU);
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
+/**
+ * @param {Number} chatID
+ * @param {User} user: user that is executing the edition
+ * @param {Object} req
+ */
+const editSchedule = async (chatID, user, req) => {
+  try {
+    let editedUser = user.editingSchedule;
+    if (editedUser === user.username) user.collegeSchedule = req.message.text;
+    else {
+      editedUser = await User.findOne({ username: editedUser });
+      editedUser.collegeSchedule = req.message.text;
+      await editedUser.save();
+    }
+    user.editingSchedule = null;
+    await user.save();
+    return await sendRes(chatID, "El horario fue actualizado exitosamente");
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500 };
+  }
+};
+
 // default answer when commmand isn't recognized
 const unrecognizedCmd = async (chatID) => {
   try {
@@ -111,5 +145,7 @@ module.exports = {
   toDosMenuCmd,
   createToDo,
   editToDo,
+  schedulesMenuCmd,
+  editSchedule,
   unrecognizedCmd,
 };
